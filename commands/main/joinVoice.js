@@ -10,12 +10,12 @@ module.exports = {
       "Joins voice, so that you wouldn't be lonely. You sad boi."
     ),
   async execute(interaction) {
-    console.log("interaction", interaction);
-    interaction.reply("Yes yes, i'm coming mom");
-    // joinVoiceChannel({
-    //   channelId: interaction.channelId,
-    //   guildId: guildId,
-    //   adapterCreator: channel.guild.voiceAdapterCreator,
-    // });
+    interaction.reply(`Thats your ID daddy - ${interaction.user.id}`);
+
+    joinVoiceChannel({
+      channelId: interaction.member.voice.channelId,
+      guildId,
+      adapterCreator: interaction.member.guild.voiceAdapterCreator,
+    });
   },
 };
