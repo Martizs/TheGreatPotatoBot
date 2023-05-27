@@ -49,6 +49,6 @@ const rest = new REST().setToken(token);
     );
   } catch (error) {
     // And of course, make sure you catch and log any errors!
-    console.error(error);
+    console.error("Deploy commands error: ", error);
   }
 })();
