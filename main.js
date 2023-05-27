@@ -1,6 +1,7 @@
 const { Client, Events, GatewayIntentBits } = require("discord.js");
 const { initiateCommands } = require("./initiate_commands");
 const { token } = require("./config");
+const { createAudioPlayer, AudioPlayerStatus } = require("@discordjs/voice");
 
 const client = new Client({
   intents: [
@@ -18,6 +19,36 @@ client.on(Events.ClientReady, () => {
   console.log("The Potato bot is online"); //message when bot is online
 });
 
+let voiceConnection;
+
+const audioPlayer = createAudioPlayer();
+
+audioPlayer.on(AudioPlayerStatus.Idle, () => {
+  console.log("AudioPlayerStatus.Idle");
+});
+
+audioPlayer.on(AudioPlayerStatus.AutoPaused, () => {
+  console.log("AudioPlayerStatus.AutoPaused");
+});
+
+audioPlayer.on(AudioPlayerStatus.Buffering, () => {
+  console.log("AudioPlayerStatus.Buffering");
+});
+
+audioPlayer.on(AudioPlayerStatus.Paused, () => {
+  console.log("AudioPlayerStatus.Paused");
+});
+
+audioPlayer.on(AudioPlayerStatus.Playing, () => {
+  console.log("AudioPlayerStatus.Playing");
+});
+
+audioPlayer.on("error", (error) => {
+  console.error(
+    `Error: ${error.message} with resource ${error.resource.metadata.title}`
+  );
+});
+
 initiateCommands(client);
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -26,7 +57,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (command) {
       try {
-        await command.execute(interaction);
+        await command.execute(interaction, audioPlayer, voiceConnection);
       } catch (error) {
         const content = `There was an error while executing "${interaction.commandName}" command!`;
 
