@@ -1,0 +1,2 @@
+# TheGreatPotatoBot
+Discord bot - TheGreatPotatoBot
