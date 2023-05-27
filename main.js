@@ -7,6 +7,7 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildVoiceStates,
   ],
   partials: ["MESSAGE", "CHANNEL"],
 });
@@ -14,7 +15,7 @@ const client = new Client({
 client.login(token);
 
 client.on(Events.ClientReady, () => {
-  console.log("The AI bot is online"); //message when bot is online
+  console.log("The Potato bot is online"); //message when bot is online
 });
 
 initiateCommands(client);
