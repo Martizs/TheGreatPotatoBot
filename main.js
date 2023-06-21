@@ -1,8 +1,13 @@
 const { Client, Events, GatewayIntentBits } = require("discord.js");
 const { initiateCommands } = require("./initiate_commands");
-const { token } = require("./config");
-const { createAudioPlayer, AudioPlayerStatus } = require("@discordjs/voice");
+const { token, guildId, maintainerId } = require("./config");
+const { Player } = require("discord-player");
+const {
+  SpotifyExtractor,
+  YoutubeExtractor,
+} = require("@discord-player/extractor");
 
+// initiate main discord bot client
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -19,36 +24,32 @@ client.on(Events.ClientReady, () => {
   console.log("The Potato bot is online"); //message when bot is online
 });
 
-let voiceConnection;
+const audioPlayer = new Player(client);
 
-const audioPlayer = createAudioPlayer();
+// If you dont want to use all of the extractors and register only the required ones manually, use
+(async () => {
+  try {
+    await audioPlayer.extractors.register(SpotifyExtractor, {});
+    console.log("SpotifyExtractor loaded successfully");
+  } catch (error) {
+    console.log("Error loading SpotifyExtractor", error);
+  }
 
-audioPlayer.on(AudioPlayerStatus.Idle, () => {
-  console.log("AudioPlayerStatus.Idle");
+  try {
+    await audioPlayer.extractors.register(YoutubeExtractor, {});
+    console.log("YoutubeExtractor loaded successfully");
+  } catch (error) {
+    console.log("Error loading YoutubeExtractor", error);
+  }
+})();
+
+// this event is emitted whenever discord-player starts to play a track
+audioPlayer.events.on("playerStart", (queue, track) => {
+  // we will later define queue.metadata object while creating the queue
+  queue.metadata.channel.send(`Started playing **${track.title}**!`);
 });
 
-audioPlayer.on(AudioPlayerStatus.AutoPaused, () => {
-  console.log("AudioPlayerStatus.AutoPaused");
-});
-
-audioPlayer.on(AudioPlayerStatus.Buffering, () => {
-  console.log("AudioPlayerStatus.Buffering");
-});
-
-audioPlayer.on(AudioPlayerStatus.Paused, () => {
-  console.log("AudioPlayerStatus.Paused");
-});
-
-audioPlayer.on(AudioPlayerStatus.Playing, () => {
-  console.log("AudioPlayerStatus.Playing");
-});
-
-audioPlayer.on("error", (error) => {
-  console.error(
-    `Error: ${error.message} with resource ${error.resource.metadata.title}`
-  );
-});
-
+// initiate command and command/interaction listeners
 initiateCommands(client);
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -57,7 +58,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (command) {
       try {
-        await command.execute(interaction, audioPlayer, voiceConnection);
+        await command.execute({
+          interaction,
+          audioPlayer,
+        });
       } catch (error) {
         const content = `There was an error while executing "${interaction.commandName}" command!`;
 
@@ -74,6 +78,29 @@ client.on(Events.InteractionCreate, async (interaction) => {
           await interaction.reply(errorResponse);
         }
       }
+    }
+  }
+});
+
+process.on("uncaughtException", function (err) {
+  console.error("Uncaught error, caught hehe", err.stack);
+
+  const queue = audioPlayer.nodes.get(guildId);
+
+  if (err.message.includes("410") && queue) {
+    if (queue.currentTrack) {
+      let message = `This is the bad track that tried to break me - ${queue.currentTrack.title}. 
+      With url - ${queue.currentTrack.url}. 
+      <@${maintainerId}> :sob: .`;
+
+      if (queue.tracks.data.length) {
+        message += " \n Resuming the list";
+        // NOTE: apperantly after a bad song is played, the playlist goes into
+        // idle? And then we need to resume it by invoking .play()
+        queue.node.play();
+      }
+
+      queue.metadata.channel.send(message);
     }
   }
 });
