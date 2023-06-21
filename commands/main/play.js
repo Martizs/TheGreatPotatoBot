@@ -4,7 +4,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("play")
     .setDescription(
-      "Play any spotify or youtube song. Provide links for accuracy. Can provide links to spotify playlists."
+      "Play spotify or youtube song. Provide links for accuracy. Can provide links to spotify playlists."
     )
     .addStringOption((option) =>
       option
