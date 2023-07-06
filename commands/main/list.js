@@ -6,19 +6,31 @@ module.exports = {
     .setName("list")
     .setDescription("Lists remaining songs in the current queue."),
   async execute({ interaction, audioPlayer }) {
-    const { trackList: queueList } = getSongQueueList({
+    const { trackList: queueList, queue } = getSongQueueList({
       interaction,
       audioPlayer,
     });
     if (queueList) {
       if (queueList.length) {
-        let responseText = "**Remaining songs in queue**: \n";
+        interaction.reply("**Remaining songs in queue**: \n");
+
+        let listText = "";
 
         queueList.forEach((item, index) => {
-          responseText += `${index + 1}) ${item.title} - ${item.author} \n`;
+          const newSongEntry = `${index + 1}) ${item.title} - ${
+            item.author
+          } \n`;
+
+          if (listText.length + newSongEntry.length > 2000) {
+            queue.metadata.channel.send(listText);
+
+            listText = "";
+          }
+
+          listText += newSongEntry;
         });
 
-        interaction.reply(responseText);
+        queue.metadata.channel.send(listText);
       } else {
         interaction.reply("Queue empty :c");
       }
