@@ -10,6 +10,7 @@ module.exports = {
 
     if (queue) {
       queue.clear();
+      queue.node.skip();
       interaction.reply("Queue cleared!");
     } else {
       interaction.reply("Queue not found :c");
