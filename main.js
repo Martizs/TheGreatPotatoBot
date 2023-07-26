@@ -87,7 +87,11 @@ process.on("uncaughtException", function (err) {
 
   const queue = audioPlayer.nodes.get(guildId);
 
-  if (err.message.includes("410") && queue) {
+  if (
+    (err.message.includes("410") ||
+      err.message.includes("Could not extract stream for this track")) &&
+    queue
+  ) {
     if (queue.currentTrack) {
       let message = `This is the bad track that tried to break me - ${queue.currentTrack.title}. 
       With url - ${queue.currentTrack.url}. 
