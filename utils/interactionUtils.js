@@ -1,5 +1,9 @@
+function getQueue({ interaction, audioPlayer }) {
+  return audioPlayer.nodes.get(interaction.guild.id);
+}
+
 function getSongQueueList({ interaction, audioPlayer }) {
-  const queue = audioPlayer.nodes.get(interaction.member.guild.id);
+  const queue = getQueue({ interaction, audioPlayer });
   if (queue) {
     return {
       trackList: queue.tracks.data,
@@ -16,4 +20,5 @@ function getSongQueueList({ interaction, audioPlayer }) {
 
 module.exports = {
   getSongQueueList,
+  getQueue,
 };
