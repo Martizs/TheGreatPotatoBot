@@ -11,8 +11,6 @@ module.exports = {
     if (queue) {
       queue.node.skip();
       interaction.reply(`**${queue.currentTrack.title}** - skipped`);
-    } else {
-      interaction.reply("Queue not found :c");
     }
   },
 };

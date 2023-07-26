@@ -1,5 +1,11 @@
 function getQueue({ interaction, audioPlayer }) {
-  return audioPlayer.nodes.get(interaction.guild.id);
+  const queue = audioPlayer.nodes.get(interaction.guild.id);
+
+  if (!queue) {
+    interaction.reply("Queue not found :c");
+  }
+
+  return queue;
 }
 
 function getSongQueueList({ interaction, audioPlayer }) {
@@ -9,10 +15,6 @@ function getSongQueueList({ interaction, audioPlayer }) {
       trackList: queue.tracks.data,
       queue,
     };
-  } else {
-    interaction.reply(
-      "There is no queue or the last song from queue is playing UwU"
-    );
   }
 
   return {};
